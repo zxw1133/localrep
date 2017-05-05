@@ -5,3 +5,5 @@
 5->vmdk,vdi,vhd
 6->iso
 7->iframe刷新,form,
+8->svg.js,
+9->canvas 动画,
