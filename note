@@ -8,3 +8,5 @@
 8->svg.js,
 9->canvas 动画,
 10->js 读写本地文件
+11->http;tcp/ip;socket;websocket;
+12->threadpool :4种;图片缓存:softreference..;lrucache;三级缓存;
