@@ -9,4 +9,6 @@
 9->canvas 动画,
 10->js 读写本地文件
 11->http;tcp/ip;socket;websocket;
-12->threadpool :4种;图片缓存:softreference..;lrucache;三级缓存;
+12->threadpool :4种;图片缓存:softreference..(Map<String,softreference<Drawable>>);lrucache;三级缓存(内存,文件缓存,网络);
+13->connection;map
+14->正则;java爬虫;
