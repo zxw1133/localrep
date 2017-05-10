@@ -12,3 +12,6 @@
 12->threadpool :4种;图片缓存:softreference..(Map<String,softreference<Drawable>>);lrucache;三级缓存(内存,文件缓存,网络);
 13->connection;map
 14->正则;java爬虫;
+15->adapter,holder;
+16->sql语句
+17->tomcat
