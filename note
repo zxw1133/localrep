@@ -15,4 +15,5 @@
 15->adapter,holder;getViewTreeObserver().addOnGlobalLayoutListener 监听view的布局,获取尺寸;
 16->sql语句
 17->tomcat
-18->synchronized lock;Annotations;handler;
+18->synchronized lock;Annotations;handler;进程间通信;
+19->git
