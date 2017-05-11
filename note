@@ -10,8 +10,9 @@
 10->js 读写本地文件
 11->http;tcp/ip;socket;websocket;
 12->threadpool :4种;图片缓存:softreference..(Map<String,softreference<Drawable>>);lrucache;三级缓存(内存,文件缓存,网络);
-13->connection;map
+13->connection:set,list,queue;map
 14->正则;java爬虫;
-15->adapter,holder;
+15->adapter,holder;getViewTreeObserver().addOnGlobalLayoutListener 监听view的布局,获取尺寸;
 16->sql语句
 17->tomcat
+18->synchronized lock;Annotations;handler;
