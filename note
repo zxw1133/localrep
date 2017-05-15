@@ -1,4 +1,4 @@
-1->contentprovider
+1->contentprovider;alarmanager(定时器);pendingintent;(ringtone;videoview视频音频文件以及assert目录,raw目录);
 2->dos
 3->jsp,servlent,myeclipse
 4->ip
@@ -18,3 +18,5 @@
 18->synchronized lock;Annotations;handler;进程间通信;
 19->git
 20->主流android库
+21->js  (function(window){})(window);函数声明,函数表达式,window.data=data;
+22->javac 编译默认操作系统编码格式(gbk);不能通过new String("中文".getBytes(),"utf-8");来进行转码;-->javac -encoding utf-8 Test.java
