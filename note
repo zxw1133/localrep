@@ -1,6 +1,6 @@
 1->contentprovider;alarmanager(定时器);pendingintent;(ringtone;videoview视频音频文件以及assert目录,raw目录);
-2->dos
-3->jsp,servlent,myeclipse
+2->dos(WINDOWS)
+3->jsp,servlent,struct,hibernate,spring,jdbc,myeclipse
 4->ip
 5->vmdk,vdi,vhd
 6->iso
@@ -15,7 +15,10 @@
 15->adapter,holder;getViewTreeObserver().addOnGlobalLayoutListener 监听view的布局,获取尺寸;
 16->sql语句
 17->tomcat
-18->synchronized lock;Annotations;handler;进程间通信;
+18->synchronized lock;Annotations;handler;进程间通信;传输格式(parcelable;serializable;bundle);
+  AIDL:
+    server:aidl  interface example{  String getStringmethod();},编译生成java文件,在service中将example.Stub重写getStringmethod(),并通过Ibinder返回;
+    client:copy一份编译后的aidl文件,再次编译,serviceconnection 重写两个方法,在连接后的方法中获取传过来的ibinder,获取example实例;连接服务,通过隐式意图setaction,在android5.0后通过setpackagename转为显式意图,连接成功后获取实例,调用方法;
 19->git
 20->主流android库
 21->js  (function(window){})(window);函数声明,函数表达式,window.data=data;
