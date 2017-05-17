@@ -1,4 +1,10 @@
-1->contentprovider;alarmanager(定时器);pendingintent;(ringtone;videoview视频音频文件以及assert目录,raw目录);
+1->contentprovider;alarmanager(定时器);pendingintent;(ringtone;videoview视频音频文件以及assert目录,raw目录);activity;
+  Activity:(stackoverflow)
+    Activity <- FragmentActivity <- AppCompatActivity <- ActionBarActivity;'<-' means inheritance here. The reference said ActionBarActivity is deprecated, use AppCompatActivity instead.
+    So basically, using AppCompatActivity is always the right choise. The differences between them:
+    Activity is the basic one.
+    Based on Activity, FragmentActivity provides the ability to use Fragment.
+    Based on FragmentActivity, AppCompatActivity provides features to ActionBar.
 2->dos(WINDOWS)
 3->jsp,servlent,struct,hibernate,spring,jdbc,myeclipse
 4->ip
