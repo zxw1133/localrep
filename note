@@ -1,4 +1,4 @@
-1->contentprovider;alarmanager(定时器);pendingintent;(ringtone;videoview视频音频文件以及assert目录,raw目录);activity;
+1->contentprovider;alarmanager(定时器);pendingintent;(ringtone;videoview视频音频文件以及assert目录,raw目录);activity;window(floating window);程序卸载应用;
   Activity:(stackoverflow)
     Activity <- FragmentActivity <- AppCompatActivity <- ActionBarActivity;'<-' means inheritance here. The reference said ActionBarActivity is deprecated, use AppCompatActivity instead.
     So basically, using AppCompatActivity is always the right choise. The differences between them:
