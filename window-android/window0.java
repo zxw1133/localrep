@@ -21,10 +21,10 @@ import android.widget.Toast;
 public class FxService extends Service 
 {
 
-	//¶¨Òå¸¡¶¯´°¿Ú²¼¾Ö
+	//å®šä¹‰æµ®åŠ¨çª—å£å¸ƒå±€
     LinearLayout mFloatLayout;
     WindowManager.LayoutParams wmParams;
-    //´´½¨¸¡¶¯´°¿ÚÉèÖÃ²¼¾Ö²ÎÊýµÄ¶ÔÏó
+    //åˆ›å»ºæµ®åŠ¨çª—å£è®¾ç½®å¸ƒå±€å‚æ•°çš„å¯¹è±¡
 	WindowManager mWindowManager;
 	
 	Button mFloatView;
@@ -51,38 +51,38 @@ public class FxService extends Service
 	private void createFloatView()
 	{
 		wmParams = new WindowManager.LayoutParams();
-		//»ñÈ¡WindowManagerImpl.CompatModeWrapper
+		//èŽ·å–WindowManagerImpl.CompatModeWrapper
 		mWindowManager = (WindowManager)getApplication().getSystemService(getApplication().WINDOW_SERVICE);
-		//ÉèÖÃwindow type
+		//è®¾ç½®window type
 		wmParams.type = LayoutParams.TYPE_PHONE; 
-		//ÉèÖÃÍ¼Æ¬¸ñÊ½£¬Ð§¹ûÎª±³¾°Í¸Ã÷
+		//è®¾ç½®å›¾ç‰‡æ ¼å¼ï¼Œæ•ˆæžœä¸ºèƒŒæ™¯é€æ˜Ž
         wmParams.format = PixelFormat.RGBA_8888; 
-        //ÉèÖÃ¸¡¶¯´°¿Ú²»¿É¾Û½¹£¨ÊµÏÖ²Ù×÷³ý¸¡¶¯´°¿ÚÍâµÄÆäËû¿É¼û´°¿ÚµÄ²Ù×÷£©
+        //è®¾ç½®æµ®åŠ¨çª—å£ä¸å¯èšç„¦ï¼ˆå®žçŽ°æ“ä½œé™¤æµ®åŠ¨çª—å£å¤–çš„å…¶ä»–å¯è§çª—å£çš„æ“ä½œï¼‰
         wmParams.flags = 
 //          LayoutParams.FLAG_NOT_TOUCH_MODAL |
           LayoutParams.FLAG_NOT_FOCUSABLE
 //          LayoutParams.FLAG_NOT_TOUCHABLE
           ;
         
-        //µ÷ÕûÐü¸¡´°ÏÔÊ¾µÄÍ£¿¿Î»ÖÃÎª×ó²àÖÃ¶¥
+        //è°ƒæ•´æ‚¬æµ®çª—æ˜¾ç¤ºçš„åœé ä½ç½®ä¸ºå·¦ä¾§ç½®é¡¶
         wmParams.gravity = Gravity.LEFT | Gravity.TOP; 
         
-        // ÒÔÆÁÄ»×óÉÏ½ÇÎªÔ­µã£¬ÉèÖÃx¡¢y³õÊ¼Öµ
+        // ä»¥å±å¹•å·¦ä¸Šè§’ä¸ºåŽŸç‚¹ï¼Œè®¾ç½®xã€yåˆå§‹å€¼
         wmParams.x = 0;
         wmParams.y = 0;
 
-        /*// ÉèÖÃÐü¸¡´°¿Ú³¤¿íÊý¾Ý
+        /*// è®¾ç½®æ‚¬æµ®çª—å£é•¿å®½æ•°æ®
         wmParams.width = 200;
         wmParams.height = 80;*/
         
-        //ÉèÖÃÐü¸¡´°¿Ú³¤¿íÊý¾Ý  
+        //è®¾ç½®æ‚¬æµ®çª—å£é•¿å®½æ•°æ®  
         wmParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
         wmParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
         
         LayoutInflater inflater = LayoutInflater.from(getApplication());
-        //»ñÈ¡¸¡¶¯´°¿ÚÊÓÍ¼ËùÔÚ²¼¾Ö
+        //èŽ·å–æµ®åŠ¨çª—å£è§†å›¾æ‰€åœ¨å¸ƒå±€
         mFloatLayout = (LinearLayout) inflater.inflate(R.layout.float_layout, null);
-        //Ìí¼ÓmFloatLayout
+        //æ·»åŠ mFloatLayout
         mWindowManager.addView(mFloatLayout, wmParams);
         
         Log.i(TAG, "mFloatLayout-->left" + mFloatLayout.getLeft());
@@ -90,7 +90,7 @@ public class FxService extends Service
         Log.i(TAG, "mFloatLayout-->top" + mFloatLayout.getTop());
         Log.i(TAG, "mFloatLayout-->bottom" + mFloatLayout.getBottom());      
         
-        //¸¡¶¯´°¿Ú°´Å¥
+        //æµ®åŠ¨çª—å£æŒ‰é’®
         mFloatView = (Button)mFloatLayout.findViewById(R.id.float_id);
         
         mFloatLayout.measure(View.MeasureSpec.makeMeasureSpec(0,
@@ -98,7 +98,7 @@ public class FxService extends Service
 				.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
         Log.i(TAG, "Width/2--->" + mFloatView.getMeasuredWidth()/2);
         Log.i(TAG, "Height/2--->" + mFloatView.getMeasuredHeight()/2);
-        //ÉèÖÃ¼àÌý¸¡¶¯´°¿ÚµÄ´¥ÃþÒÆ¶¯
+        //è®¾ç½®ç›‘å¬æµ®åŠ¨çª—å£çš„è§¦æ‘¸ç§»åŠ¨
         mFloatView.setOnTouchListener(new OnTouchListener() 
         {
 			
@@ -106,17 +106,17 @@ public class FxService extends Service
 			public boolean onTouch(View v, MotionEvent event) 
 			{
 				// TODO Auto-generated method stub
-				//getRawXÊÇ´¥ÃþÎ»ÖÃÏà¶ÔÓÚÆÁÄ»µÄ×ø±ê£¬getXÊÇÏà¶ÔÓÚ°´Å¥µÄ×ø±ê
+				//getRawXæ˜¯è§¦æ‘¸ä½ç½®ç›¸å¯¹äºŽå±å¹•çš„åæ ‡ï¼ŒgetXæ˜¯ç›¸å¯¹äºŽæŒ‰é’®çš„åæ ‡
 				wmParams.x = (int) event.getRawX() - mFloatView.getMeasuredWidth()/2;
 				//Log.i(TAG, "Width/2--->" + mFloatView.getMeasuredWidth()/2);
 				Log.i(TAG, "RawX" + event.getRawX());
 				Log.i(TAG, "X" + event.getX());
-				//25Îª×´Ì¬À¸µÄ¸ß¶È
+				//25ä¸ºçŠ¶æ€æ çš„é«˜åº¦
 	            wmParams.y = (int) event.getRawY() - mFloatView.getMeasuredHeight()/2 - 25;
 	           // Log.i(TAG, "Width/2--->" + mFloatView.getMeasuredHeight()/2);
 	            Log.i(TAG, "RawY" + event.getRawY());
 	            Log.i(TAG, "Y" + event.getY());
-	             //Ë¢ÐÂ
+	             //åˆ·æ–°
 	            mWindowManager.updateViewLayout(mFloatLayout, wmParams);
 				return false;
 			}
