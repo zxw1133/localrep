@@ -1,6 +1,6 @@
 1->contentprovider;alarmanager(定时器);pendingintent;(ringtone;videoview视频音频文件以及assert目录,raw目录);
  ->activity;window(floating window);(程序卸载应用);view;surfaceview;布局(include,merge,viewstub);ObjectAnimator;
- ->SavedState
+ ->SavedState;android  xml;
  ---------------------------------------------------------------------------------------------------------------------------------
   Activity:(stackoverflow)
     Activity <- FragmentActivity <- AppCompatActivity <- ActionBarActivity;'<-' means inheritance here. The reference said ActionBarActivity is deprecated, use AppCompatActivity instead.
@@ -20,6 +20,9 @@
   -------------------------------------------------------------------------------------------------------------------------------
   布局标签(include,merge,viewstub):
   <include />标签能够重用布局文件; <merge/>标签在UI的结构优化中起着非常重要的作用，它可以删减多余的层级，优化UI; <ViewStub />标签最大的优点是当你需要时才会加载，使用他并不会影响UI初始化时的性能。
+  -------------------------------------------------------------------------------------------------------------------------------
+  android res下xml
+  drawable目录下,sharpe:xml绘制几何形状,Selector:主要是用来改变ListView和Button控件的默认背景。layer-list:将多个图片或上面两种效果按照顺序层叠起来.
   -------------------------------------------------------------------------------------------------------------------------------
 2->dos(WINDOWS)
 3->jsp,servlent,struct,hibernate,spring,jdbc,myeclipse
