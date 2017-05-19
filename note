@@ -1,10 +1,26 @@
-1->contentprovider;alarmanager(定时器);pendingintent;(ringtone;videoview视频音频文件以及assert目录,raw目录);activity;window(floating window);程序卸载应用;
+1->contentprovider;alarmanager(定时器);pendingintent;(ringtone;videoview视频音频文件以及assert目录,raw目录);
+ ->activity;window(floating window);(程序卸载应用);view;surfaceview;布局(include,merge,viewstub);ObjectAnimator;
+ ->SavedState
+ ---------------------------------------------------------------------------------------------------------------------------------
   Activity:(stackoverflow)
     Activity <- FragmentActivity <- AppCompatActivity <- ActionBarActivity;'<-' means inheritance here. The reference said ActionBarActivity is deprecated, use AppCompatActivity instead.
     So basically, using AppCompatActivity is always the right choise. The differences between them:
     Activity is the basic one.
     Based on Activity, FragmentActivity provides the ability to use Fragment.
     Based on FragmentActivity, AppCompatActivity provides features to ActionBar.
+  --------------------------------------------------------------------------------------------------------------------------------
+  Activity与window:
+    activity  封装phonewindow, windowmanager, viewroot, addview(),window直接管理视图,activity是window的容器,方便管理window,在service中可以直接创建window,绘制view视图;
+    android 6.0浮动窗口权限问题;
+  -------------------------------------------------------------------------------------------------------------------------------
+  surfaceview与view:
+     1、VIew主要适用于主动更新情况，并且只能在主线程绘制和更新画面，以及在绘图时没有使用双缓冲机制
+     2、surfaceView主要适用于被动更新，如频繁的刷新，因为它可以通过子线程来进行页面的刷新，而且在底层已经实现双缓冲机制，绘图时不会出现闪烁问题
+      总而言之，SurfaceView继承自View，主要用于视频、音频或耗时的绘图和经常更新视图（地图等等）显示，如果自定义的view需要频繁刷新，或者刷新时处理的数据量大，则可以考虑surfaceview取代view,因为View在主线程中会阻塞主线程，若view的刷新操作超过16ms则用户视觉会感到卡顿，由于surfaceView是子线程处理就不会
+  -------------------------------------------------------------------------------------------------------------------------------
+  布局标签(include,merge,viewstub):
+  <include />标签能够重用布局文件; <merge/>标签在UI的结构优化中起着非常重要的作用，它可以删减多余的层级，优化UI; <ViewStub />标签最大的优点是当你需要时才会加载，使用他并不会影响UI初始化时的性能。
+  -------------------------------------------------------------------------------------------------------------------------------
 2->dos(WINDOWS)
 3->jsp,servlent,struct,hibernate,spring,jdbc,myeclipse
 4->ip
