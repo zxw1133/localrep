@@ -1,6 +1,6 @@
 1->contentprovider;alarmanager(定时器);pendingintent;(ringtone;videoview视频音频文件以及assert目录,raw目录);
  ->activity;window(floating window);(程序卸载应用);view;surfaceview;布局(include,merge,viewstub);ObjectAnimator;
- ->SavedState;android  xml;
+ ->SavedState;android  xml;toolbar,actionbar;
  ---------------------------------------------------------------------------------------------------------------------------------
   Activity:(stackoverflow)
     Activity <- FragmentActivity <- AppCompatActivity <- ActionBarActivity;'<-' means inheritance here. The reference said ActionBarActivity is deprecated, use AppCompatActivity instead.
@@ -23,6 +23,9 @@
   -------------------------------------------------------------------------------------------------------------------------------
   android res下xml
   drawable目录下,sharpe:xml绘制几何形状,Selector:主要是用来改变ListView和Button控件的默认背景。layer-list:将多个图片或上面两种效果按照顺序层叠起来.
+  -------------------------------------------------------------------------------------------------------------------------------
+  Actionbar和toolbar:
+  actionbar是android3.0之后默认的应用栏样式,但会随系统变化,v7包中的toolbar可以保持样式一致,且兼容低版本;
   -------------------------------------------------------------------------------------------------------------------------------
 2->dos(WINDOWS)
 3->jsp,servlent,struct,hibernate,spring,jdbc,myeclipse
