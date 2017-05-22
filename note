@@ -10,7 +10,12 @@
     Based on Activity, FragmentActivity provides the ability to use Fragment.
     Based on FragmentActivity, AppCompatActivity provides features to ActionBar.
   --------------------------------------------------------------------------------------------------------------------------------
-  Activity与window:
+  Activity和fragment生命周期:
+   oncreate->onstart->onresume->onpause->onstop->ondestory
+   onattach->oncreate->oncreateview->onviewcreate->onactivitycreate->onstart->onresume->onpause->onstop->ondestoryview->ondestory->ondetach
+   fragment从回退栈返回时,走oncreateview;activity走的是onpause->onresume,onstop->onstart;
+  -------------------------------------------------------------------------------------------------------------------------------
+ Activity与window:
     activity  封装phonewindow, windowmanager, viewroot, addview(),window直接管理视图,activity是window的容器,方便管理window,在service中可以直接创建window,绘制view视图;
     android 6.0浮动窗口权限问题;
   -------------------------------------------------------------------------------------------------------------------------------
