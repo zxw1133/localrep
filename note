@@ -1,6 +1,6 @@
 1->contentprovider;alarmanager(定时器);pendingintent;(ringtone;videoview视频音频文件以及assert目录,raw目录);
  ->activity;window(floating window);(程序卸载应用);view;surfaceview;布局(include,merge,viewstub);ObjectAnimator;
- ->SavedState;android  xml;toolbar,actionbar;
+ ->SavedState;android  xml;toolbar,actionbar;drawerlayout+framelayout+navigationview;
  ---------------------------------------------------------------------------------------------------------------------------------
   Activity:(stackoverflow)
     Activity <- FragmentActivity <- AppCompatActivity <- ActionBarActivity;'<-' means inheritance here. The reference said ActionBarActivity is deprecated, use AppCompatActivity instead.
