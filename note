@@ -1,7 +1,7 @@
 1->contentprovider;alarmanager(定时器);pendingintent;(ringtone;videoview视频音频文件以及assert目录,raw目录);
  ->activity;window(floating window);(程序卸载应用);view;surfaceview;布局(include,merge,viewstub);ObjectAnimator;
  ->SavedState;android  xml;toolbar,actionbar;drawerlayout+framelayout+navigationview(自定义的ui view);tablayout;ViewPagerIndicator;
- ->
+ ->签名sign;
  ---------------------------------------------------------------------------------------------------------------------------------
   Activity:(stackoverflow)
     Activity <- FragmentActivity <- AppCompatActivity <- ActionBarActivity;'<-' means inheritance here. The reference said ActionBarActivity is deprecated, use AppCompatActivity instead.
@@ -33,6 +33,12 @@
   Actionbar和toolbar:
   actionbar是android3.0之后默认的应用栏样式,但会随系统变化,v7包中的toolbar可以保持样式一致,且兼容低版本;
   侧滑,有是否在toolbar下面,是否覆盖toolbar;layout_gravity="start"或者left或者end;
+  -------------------------------------------------------------------------------------------------------------------------------
+sign:
+  未签名应用,同包名在同一个手机上会覆盖安装,所以包名可以开发区分不同apk;
+  应用市场可能会出现相同包名的apk,签名用于apk的唯一识别,A->私钥->B->公钥->A;
+  不同应用使用同一个签名,会运行在同一个进程中,相当于同一个App，可以单独对他们升级更新，这是一种App级别的模块化思路。
+  通过设置permission标签,实现app间数据共享;
   -------------------------------------------------------------------------------------------------------------------------------
 2->dos(WINDOWS)
 3->jsp,servlent,struct,hibernate,spring,jdbc,myeclipse
