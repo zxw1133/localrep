@@ -1,0 +1,108 @@
+由于我们很容易习惯公式化的预置代码，有时我们会忽略很优雅的细节。LayoutInflater以及它在Fragment的onCreateView()中填充View的方式带给我的就是这样的感受。这个类用于将XML文件转换成相对应的ViewGroup和控件Widget。我尝试在Google官方文档与网络上其他讨论中寻找有关的说明，而后发现许多人不但不清楚LayoutInflater的inflate()方法的细节，而且甚至在误用它。
+
+这里的困惑很大程度上是因为Google上有关attachToRoot（也就是inflate()方法第三个参数）的文档太模糊：
+
+被填充的层是否应该附在root参数内部？如果是false，root参数只是用于为XML根元素View创建正确的LayoutParams的子类。
+
+其实意思就是：如果attachToRoot是true的话，那第一个参数的layout文件就会被填充并附加在第二个参数所指定的ViewGroup内。方法返回结合后的View，根元素是第二个参数ViewGroup。如果是false的话，第一个参数所指定的layout文件会被填充并作为View返回。这个View的根元素就是layout文件的根元素。不管是true还是false，都需要ViewGroup的LayoutParams来正确的测量与放置layout文件所产生的View对象。
+
+attachToRoot传入true代表layout文件填充的View会被直接添加进ViewGroup，而传入false则代表创建的View会以其他方式被添加进ViewGroup。
+
+让我们就两种情况多举一些例子来更深入的理解。
+
+attachToRoot是True
+假设我们在XML layout文件中写了一个Button并指定了宽高为match_parent。
+
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/custom_button">
+</Button>
+现在我们想动态地把这个按钮添加进Fragment或Activity的LinearLayout中。如果这里LinearLayout已经是一个成员变量mLinearLayout了，我们只需要通过如下代码达成目标：
+
+inflater.inflate(R.layout.custom_button, mLinearLayout, true);
+我们指定了用于填充button的layout资源文件，然后我们告诉LayoutInflater我们想把button添加到mLinearLayout中。这里Button的LayoutParams种类为LinearLayout.LayoutParams。
+
+下面的代码也有同样的效果。LayoutInflater的两个参数的inflate()方法自动将attachToRoot设置为true。
+
+inflater.inflate(R.layout.custom_button, mLinearLayout);
+另一种在attachToRoot中传递true的情况是使用自定义View。我们看一个layout文件中根元素有 标签的例子。 标签标识着这个layout文件的根ViewGroup可以有多种类型。
+
+public class MyCustomView extends LinearLayout {
+    ...
+    private void init() {
+    LayoutInflater inflater = LayoutInflater.from(getContext());
+    inflater.inflate(R.layout.view_with_merge_tag, this);
+    }
+}
+这就是一个很好的使用attachToRoot的例子。这个例子中layout文件没有ViewGroup作为根元素，所以我们指定我们自定义的LinearLayout作为根元素。如果layout文件有一个FrameLayout作为根元素而不是 ，那么FrameLayout和它的子元素都可以正常填充，而后都会被添加到LinearLayout中，LinearLayout是根ViewGroup，包含着FrameLayout和其子元素。
+
+attachToRoot是False
+我们看一下什么时候attachToRoot应该是false。在这种情况下，inflate()方法中的第一个参数所指定的View不会被添加到第二个参数所指定的ViewGroup中。
+
+回忆一下刚才的例子中的Button，我们想通过layout文件添加自定义的Button至mLinearLayout中。当attachToRoot为false时，我们仍可以将Button添加到mLinearLayout中，但是这需要我们自己动手。
+
+Button button = (Button) inflater.inflate(R.layout.custom_button, mLinearLayout, false);
+mLinearLayout.addView(button);
+这两行代码与刚才attachToRoot为true时的一行代码等效。通过传入false，我们告诉LayoutInflater我们不暂时还想将View添加到根元素ViewGroup中，意思是我们一会儿再添加。在这个例子中，一会儿再添加就是在inflate()后调用addView()方法。
+
+在将attachToRoot设置为false的例子中，由于要手动添加View进ViewGroup导致代码变多了。将Button添加到LinearLayout中还是用一行代码直接将attachToRoot设置为true简便一些。下面我们看一下什么情况下attachToRoot必须传入false。
+
+每一个RecyclerView的子元素都要在attachToRoot设置为false的情况下填充。这里子View在onCreateViewHolder()中填充。
+
+public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    LayoutInflater inflater = LayoutInflater.from(getActivity());
+    View view = inflater.inflate(android.R.layout.list_item_recyclerView, parent, false);
+    return new ViewHolder(view);
+}
+RecyclerView负责决定什么时候展示它的子View，这个不由我们决定。在任何我们不负责将View添加进ViewGroup的情况下都应该将attachToRoot设置为false。
+
+当在Fragment的onCreateView()方法中填充并返回View时，要将attachToRoot设为false。如果传入true，会抛出IllegalStateException，因为指定的子View已经有父View了。你需要指定在哪里将Fragment的View放进Activity里，而添加、移除或替换Fragment则是FragmentManager的事情。
+
+FragmentManager fragmentManager = getSupportFragmentManager();
+Fragment fragment = fragmentManager.findFragmentById(R.id.root_viewGroup);
+
+if (fragment == null) {
+    fragment = new MainFragment();
+    fragmentManager.beginTransaction().add(R.id.root_viewGroup, fragment).commit();
+}
+上面代码中root_viewGroup就是Activity中用于放置Fragment的容器，它会作为inflate()方法中的第二个参数被传入onCreateView()中。它也是你在inflate()方法中传入的ViewGroup。FragmentManager会将Fragment的View添加到ViewGroup中，你可不想添加两次。
+
+public View onCreateView(LayoutInflater inflater, ViewGroup parentViewGroup, Bundle savedInstanceState) {
+    View view = inflater.inflate(R.layout.fragment_layout, parentViewGroup, false);
+    …
+    return view;
+}
+问题是：如果我们不需在onCreateView()中将View添加进ViewGroup，为什么还要传入ViewGroup呢？为什么inflate()方法必须要传入根ViewGroup？
+
+原因是及时不需要马上将新填充的View添加进ViewGroup，我们还是需要这个父元素的LayoutParams来在将来添加时决定View的size和position。
+
+你在网上一定会遇到一些不正确的建议。有些人会建议你如果将attachToRoot设置为false的话直接将根ViewGroup传入null。但是，如果有父元素的话，还是应该传入的。
+
+null-root
+
+Lint会警告你不要讲null作为root传入。你的App不会挂掉，但是可能会表现异常。当你的子View没有正确的LayoutParams时，它会自己通过generateDefaultLayoutParams)计算。
+
+你可能并不想要这些默认的LayoutParams。你在XML指定的LayoutParams会被忽略。我们可能已经指定了子View要填充父元素的宽度，但父View又wrap_content导致最终的View小很多。
+
+下面是一种没有ViewGroup作为root传入inflate()方法的情况。当为AlertDialog创建自定义View时，还无法访问父元素。
+
+AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
+View customView = inflater.inflate(R.layout.custom_alert_dialog, null);
+...
+dialogBuilder.setView(customView);
+dialogBuilder.show();
+在这种情况下，可以将null作为root ViewGroup传入。后来我发现AlertDialog还是会重写LayoutParams并设置各项参数为match_parent。但是，规则还是在有ViewGroup可以传入时传入它。
+
+避开崩溃、异常表现与误解
+希望这篇文章可以帮助你在使用LayoutInflater时避开崩溃、异常表现与误解。下面整理了文章的要点：
+
+如果可以传入ViewGroup作为根元素，那就传入它。
+
+避免将null作为根ViewGroup传入。
+
+当我们不负责将layout文件的View添加进ViewGroup时设置attachToRoot参数为false。
+
+不要在View已经被添加进ViewGroup时传入true。
+
+自定义View时很适合将attachToRoot设置为true。
