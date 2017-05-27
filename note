@@ -2,7 +2,7 @@
  ->contentprovider;alarmanager(定时器);pendingintent;(ringtone;videoview视频音频文件以及assert目录,raw目录);
  ->activity;window(floating window);(程序卸载应用);view;surfaceview;布局(include,merge,viewstub);ObjectAnimator;
  ->SavedState;android  xml;toolbar,actionbar;drawerlayout+framelayout+navigationview(自定义的ui view);tablayout;ViewPagerIndicator;
- ->签名sign;
+ ->签名sign;gradle;
  ---------------------------------------------------------------------------------------------------------------------------------
   Activity:(stackoverflow)
     Activity <- FragmentActivity <- AppCompatActivity <- ActionBarActivity;'<-' means inheritance here. The reference said ActionBarActivity is deprecated, use AppCompatActivity instead.
@@ -40,6 +40,9 @@ sign:
   应用市场可能会出现相同包名的apk,签名用于apk的唯一识别,A->私钥->B->公钥->A;
   不同应用使用同一个签名,会运行在同一个进程中,相当于同一个App，可以单独对他们升级更新，这是一种App级别的模块化思路。
   通过设置permission标签,实现app间数据共享;
+  -------------------------------------------------------------------------------------------------------------------------------
+  Gradle:
+   classpath 'com.android.tools.build:gradle:2.3.1'与gradle version 区别:前者是gradle 插件版本,一个是gradle版本;
   -------------------------------------------------------------------------------------------------------------------------------
 2->dos(WINDOWS)
 3->jsp,servlent,struct,hibernate,spring,jdbc,myeclipse
