@@ -2,7 +2,7 @@
  ->contentprovider;alarmanager(定时器);pendingintent;(ringtone;videoview视频音频文件以及assert目录,raw目录);
  ->activity;window(floating window);(程序卸载应用);view;surfaceview;布局(include,merge,viewstub);ObjectAnimator;
  ->SavedState;android  xml;toolbar,actionbar;drawerlayout+framelayout+navigationview(自定义的ui view);tablayout;ViewPagerIndicator;
- ->签名sign;gradle;
+ ->签名sign;gradle;proguard;
  ---------------------------------------------------------------------------------------------------------------------------------
   Activity:(stackoverflow)
     Activity <- FragmentActivity <- AppCompatActivity <- ActionBarActivity;'<-' means inheritance here. The reference said ActionBarActivity is deprecated, use AppCompatActivity instead.
@@ -44,6 +44,9 @@ sign:
   Gradle:
    classpath 'com.android.tools.build:gradle:2.3.1'与gradle version 区别:前者是gradle 插件版本,一个是gradle版本;
   -------------------------------------------------------------------------------------------------------------------------------
+  ProGuard:
+   sdk/tools/proguard_android.txt google默认混淆,project目录下proguard-rules.pro可添加自定义混淆规则,minifyEnabled false,不启用混淆;
+   -------------------------------------------------------------------------------------------------------------------------------
 2->dos(WINDOWS)
 3->jsp,servlent,struct,hibernate,spring,jdbc,myeclipse
 4->ip
