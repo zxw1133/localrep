@@ -1,0 +1,132 @@
+onNewIntent调用时机
+在IntentActivity中重写下列方法：onCreate onStart onRestart  onResume  onPause onStop onDestroy  onNewIntent
+
+一、其他应用发Intent，执行下列方法：
+I/@@@philn(12410): onCreate
+I/@@@philn(12410): onStart
+I/@@@philn(12410): onResume
+
+发Intent的方法:
+
+Uri uri = Uri.parse("philn://blog.163.com");
+Intent it = new Intent(Intent.ACTION_VIEW, uri);    
+startActivity(it);
+ 
+
+二、接收Intent声明： 
+
+复制代码
+<activity android:name=".IntentActivity" android:launchMode="singleTask"
+                  android:label="@string/testname">
+             <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="philn"/>
+            </intent-filter>
+  </activity>
+复制代码
+ 
+
+三、如果IntentActivity处于任务栈的顶端，也就是说之前打开过的Activity，现在处于
+I/@@@philn(12410): onPause
+I/@@@philn(12410): onStop 状态的话
+其他应用再发送Intent的话，执行顺序为：
+I/@@@philn(12410): onNewIntent
+I/@@@philn(12410): onRestart
+I/@@@philn(12410): onStart
+I/@@@philn(12410): onResume
+
+在Android应用程序开发的时候，从一个Activity启动另一个Activity并传递一些数据到新的Activity上非常简单，但是当您需要让后台运行的Activity回到前台并传递一些数据可能就会存在一点点小问题。
+
+首先，在默认情况下，当您通过Intent启到一个Activity的时候，就算已经存在一个相同的正在运行的Activity,系统都会创建一个新的Activity实例并显示出来。为了不让Activity实例化多次，我们需要通过在AndroidManifest.xml配置activity的加载方式（launchMode）以实现单任务模式，如下所示：
+
+ 
+
+<activity android:label="@string/app_name" android:launchmode="singleTask"android:name="Activity1"></activity>
+ 
+
+launchMode为singleTask的时候，通过Intent启到一个Activity,如果系统已经存在一个实例，系统就会将请求发送到这个实例上，但这个时候，系统就不会再调用通常情况下我们处理请求数据的onCreate方法，而是调用onNewIntent方法，如下所示:
+
+复制代码
+ protected void onNewIntent(Intent intent) {
+
+   super.onNewIntent(intent);
+
+   setIntent(intent);//must store the new intent unless getIntent() will return the old one
+
+   processExtraData();
+
+ }
+复制代码
+
+不要忘记，系统可能会随时杀掉后台运行的Activity，如果这一切发生，那么系统就会调用onCreate方法，而不调用onNewIntent方法，一个好的解决方法就是在onCreate和onNewIntent方法中调用同一个处理数据的方法，如下所示：
+
+ 
+
+复制代码
+ public void onCreate(Bundle savedInstanceState) {
+
+   super.onCreate(savedInstanceState);
+
+   setContentView(R.layout.main);
+
+   processExtraData();
+
+ }
+
+ protected void onNewIntent(Intent intent) {
+
+   super.onNewIntent(intent);
+
+   setIntent(intent);//must store the new intent unless getIntent() will return the old one
+
+   processExtraData()
+
+ }
+
+ private void processExtraData(){
+
+   Intent intent = getIntent();
+
+   //use the data received here
+
+ }
+ ------------------------------------------------------------------------------------------------------------------------------
+ Android中Activity启动模式详解 
+
+　　在Android中每个界面都是一个Activity，切换界面操作其实是多个不同Activity之间的实例化操作。在Android中Activity的启动模式决定了Activity的启动运行方式。 
+
+　　Android总Activity的启动模式分为四种： 
+
+Java代码  收藏代码
+Activity启动模式设置：  
+  
+        <activity android:name=".MainActivity" android:launchMode="standard" />  
+  
+Activity的四种启动模式：  
+  
+    1. standard  
+  
+        默认启动模式，每次激活Activity时都会创建Activity，并放入任务栈中，永远不会调用onNewIntent()。  
+  
+    2. singleTop  
+  
+        如果在任务的栈顶正好存在该Activity的实例， 就重用该实例，并调用其onNewIntent()，否者就会创建新的实例并放入栈顶(即使栈中已经存在该Activity实例，只要不在栈顶，都会创建实例，而不会调用onNewIntent()，此时就跟standard模式一样)。  
+  
+    3. singleTask  
+  
+        如果在栈中已经有该Activity的实例，就重用该实例(会调用实例的onNewIntent())。重用时，会让该实例回到栈顶，因此在它上面的实例将会被移除栈。如果栈中不存在该实例，将会创建新的实例放入栈中（此时不会调用onNewIntent()）。   
+  
+    4. singleInstance  
+  
+        在一个新栈中创建该Activity实例，并让多个应用共享改栈中的该Activity实例。一旦改模式的Activity的实例存在于某个栈中，任何应用再激活改Activity时都会重用该栈中的实例，其效果相当于多个应用程序共享一个应用，不管谁激活该Activity都会进入同一个应用中。  
+
+
+       大家遇到一个应用的Activity供多种方式调用启动的情况，多个调用希望只有一个Activity的实例存在，这就需要Activity的onNewIntent(Intent intent)方法了。只要在Activity中加入自己的onNewIntent(intent)的实现加上Manifest中对Activity设置lanuchMode=“singleTask”就可以。 
+
+       onNewIntent（）非常好用，Activity第一启动的时候执行onCreate()---->onStart()---->onResume()等后续生命周期函数，也就时说第一次启动Activity并不会执行到onNewIntent(). 而后面如果再有想启动Activity的时候，那就是执行onNewIntent()---->onResart()------>onStart()----->onResume().  如果android系统由于内存不足把已存在Activity释放掉了，那么再次调用的时候会重新启动Activity即执行onCreate()---->onStart()---->onResume()等。 
+
+     当调用到onNewIntent(intent)的时候，需要在onNewIntent() 中使用setIntent(intent)赋值给Activity的Intent.否则，后续的getIntent()都是得到老的Intent。 
+     -------------------------------------------------------------------------------------------------------------------------------
+     
