@@ -281,4 +281,8 @@ public class LunxunServices extends Service {
         LunxunUtils.startlunxunService(getApplicationContext(),seconds,LunxunServices.class, LunxunServices.ACTION);
     }
 }
+-----------------------------------
+Flags为PendingIntent.FLAG_CANCEL_CURRENT，则只有最后一次PendingIntent有效，之前的都无效了。（只有点击最后一有个通知才会效，点击以前人都不会跳转） 
+Flags为PendingIntent.FLAG_UPDATE_CURRENT，对于FLAG_UPDATE_CURRENT,如果上面的num为常量， 则所有对应的Intent里面的extra被更新为最新的， 就是全部为最后一次的。 
+相反，如果requestCode每次不一样，则里面的Inent的数据没被更新（也就是说，如果每个requestCode不一样时，我们点击不同的通知才会做出跳转）。
 
