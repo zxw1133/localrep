@@ -1,0 +1,111 @@
+一    adb常用命令
+
+adb start-server       
+        开启adb服务
+
+adb kill-server              
+        终止adb服务
+
+adb devices   
+        列出所有连接到adb的设备, 包括真机和模拟器
+
+adb version                  
+        显示adb的版本号
+
+adb install <apk file name>    
+将指定的app安装到唯一连接到adb的设备上,后边跟的参数为安装包的文件名
+
+adb install -r <apk file name>
+        安装应用程序, 但是保留原有应用程序的所有数据
+
+adb uninstall <package name>
+        将包名指定的app从目标设备上卸载,后边跟的参数为应用程序的包名
+
+adb uninstall -k <package name>    
+将包名指定的app从目标设备上卸载, 但是保留配置文件和缓存
+
+adb push <local> <remote>    
+将本机的文件或目录拷贝到目标设备的文件系统中
+
+adb pull <remote> [<local>]  
+将目标设备中的文件或目录拷贝到本机中
+
+adb shell 
+进入目标设备的Linux Shell环境, 在该环境中可以执行一些linux命令.如在Linux Shell环境中执行ps可以查看android设备中运行的所有进程.在Linux Shell环境中执行exit可以退出Linux Shell环境
+
+adb shell dumpsys activity
+列出目标设备上的activity栈(back stack)和任务(task)的信息, 还有其他组件的一些信息和一些关于进程的信息
+
+adb shell dumpsys packages
+列出一些系统信息和所有应用的信息。这个命令的输出很庞大，在三星nexus上的输出有12000多行。这些信息
+都非常详细，包括Features，Activity Resolver Table等。以下是输出的主要信息：
+
+adb shell pm list permissions
+         列出目标平台上的所有权限
+
+adb shell pm list packages
+列出目标设备上安装的所有app的包名
+
+adb shell pm list features
+        列出目标设备上的所有feature
+
+
+使用adb命令启动一个Activity
+[plain] view plain copy
+<span style="font-family:SimSun;font-size:14px;">adb shell am start PACKAGE_NAME/ACTIVITY_IN_PACKAGE  
+adb shell am start PACKAGE_NAME/FULLY_QUALIFIED_ACTIVITY  
+  
+# example  
+adb shell am start -n com.growingwiththeweb.example/.MainActivity  
+adb shell am start -n com.growingwiththeweb.example/com.growingwiththeweb.example.MainActivity</span>  
+
+
+屏幕截图, 并使用perl命令保存截图
+adb shell screencap -p | perl -pe 's/\x0D\x0A/\x0A/g' > screen.png
+
+解锁屏幕
+adb shell input keyevent 82
+
+
+
+注:  所有以"adb shell"开头的命令,都可以先执行adb shell命令进入目标设备的Linux Shell环境, 然后在目标设备的Linux Shell中再执行"adb shell"之后的命令.如adb shell dumpsys activity, 可以先执行adb shell, 然后再Linux Shell中再执行dumpsys activity
+
+
+二    adb命令中用于确定目标设备的参数
+
+adb命令有三个重要的参数,当本机上连接了两个或以上的android设备时,这三个参数就有用武之地了:
+-d  说明adb命令的目标设备是唯一连接到adb的真机
+-e  说明adb命令的目标设备是唯一连接到adb的模拟器
+-s  <specific device> 指定adb命令的目标设备
+
+以下为这三个参数的应用举例:
+adb -d shell
+进入唯一连接到adb的真机的Linux Shell环境
+
+adb -e install weibo.apk
+将weibo.apk安装到唯一连接到adb的模拟器上
+
+adb -s emulator-5554 push weibo.apk /sdcard/weibo.apk  
+将weibo.apk文件复制到emulator-5554的/sdcard/weibo.apk位置
+
+注:  根据我自己的测试,当用-d -e 或者-s 指定目标设备时,命令有时会执行的比较慢,不知道什么原因
+
+
+三    使用adb命令行的优势
+
+        尽管现在的用户操作以图形界面为主,但是在一些情况下, 命令行具有图形界面没有的优势, 尤其是对于开发人员, 命令行能提高效率.下面举例说明: 
+
+1  快速卸载app
+
+在android开发过程中, 在把程序发布到手机上进行测试时, 有时必须要卸载以前的版本以删除原来的数据,此时只要在命令行中输入
+adb uninstall <包名> 
+即可卸载, 而在手机上卸载, 要经过如下步骤:
+设置 --> 应用程序 --> 管理应用程序 --> 在列表中找到要卸载的程序 --> 点击要卸载的应用程序 --> 卸载
+
+2  快速删除目录(文件夹)
+
+ 如果程序在sd卡上创建了目录MyApp,在该目录中有数据库和一些其他文件,在将程序发布到手机上测试时, 需要删除原来创建的目录再重新创建.这时只需要执行以下命令:
+adb shell
+cd /mnt/sdcard
+rm -r MyApp
+这样的话就不必再在文件浏览器中寻找这个目录并删除它 . 
