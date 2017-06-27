@@ -1,0 +1,55 @@
+Cordova是PhoneGap贡献给Apache后的开源项目，是从PhoneGap中抽离出的核心代码，是驱动PhoneGap的核心引擎。
+有点类似Webkit和Google Chrome的关系。渊源就是：早在2011年10月，Adobe收购了Nitobi Software和它的PhoneGap产品，然后宣布这个移动Web开发框架将会继续开源，并把它提交到Apache Incubator，以便完全接受ASF的管治。当然，由于Adobe拥有了PhoneGap商标，所以开源组织的这个PhoneGap v2.0版产品就更名为Apache Cordova。
+
+了解：http://itindex.net/detail/37011-phonegap
+
+ 
+Cordova的环境搭建：
+
+  1：配置android环境，就是安装jdk ，android studio ，sdk，java环境配置，总之就是能正常开发原生android，百度上有很多。注意sdk一定要下载到 23，否则后面会出问题，具体为什么没有研究。
+  2：在    https://nodejs.org/ 下载需要的nodejs(本人是win7)，然后安装，一直下一步就行。
+》》npm：使用npm安装一些包失败了的看过来（npm国内镜像介绍）
+镜像使用方法（三种办法任意一种都能解决问题，建议使用第三种，将配置写死，下次用的时候配置还在）:
+1）.通过config命令
+npm config set registry https://registry.npm.taobao.org 
+npm info underscore （如果上面配置正确这个命令会有字符串response）
+2）.命令行指定
+npm --registry https://registry.npm.taobao.org info underscore 
+3）.编辑 ~/.npmrc 加入下面内容
+registry = https://registry.npm.taobao.org
+搜索镜像: https://npm.taobao.org
+建立或使用镜像,参考: https://github.com/cnpm/cnpmjs.org
+Sdk环境配置：
+打开我的电脑--属性--高级--环境变量 
+1）、新建系统变量ANDROID_HOME，变量名：ANDROID_HOME，变量值：E:\dev-tools\adt-bundle-windows-x86_64-20140321\sdk
+2）、选择“系统变量”中变量名为“Path”的环境变量，双击该变量，在原来变量后追加 ;%ANDROID_HOME%\tools;%ANDROID_HOME%\platform-tools
+
+  3：输入cmd进入DOS界面
+                   
+
+ 4：DOS界面下输入npm install -g cordova 命令安装cordova
+                 
+5：DOS界面下输入cordova  -v 命令可查看cordova版本
+                    
+
+    6：DOS界面下输入 E：命令进入E盘，(输入自己想进的)，通过 cd test 命令进入文件夹
+                      
+
+      7：DOS界面下输入cordova create cDemo com.example.demo HelloWorld 命令创建一个名为cDemo的项目，包名为com.example.demo
+                 app名为HelloWorld，红线包围部分第一次创建不太一样。
+                  
+
+       8：图为创建好的项目
+               
+   9：DOS界面下输入 cd  cDemo 命令进入项目根目录，并输入cordova platform add android 命令，将项目加入android工程。项目的platforms文件夹下回多出一个android文件夹。
+                  
+
+ 10：DOS界面下输入 cordova build 对项目进行build，第一次需要下载东西比较慢. E:/Test/cDemo/platforms/android/build/outputs/apk/android-debug.apk 这个地址是apk所在文件夹
+                    
+ 11：下面是对 android studio 的操作，导入该项目，注意一定要选到 build.gradle
+ ------------------------------------------------------------
+ 几个网址:
+ http://www.cnblogs.com/woodk/p/5213916.html
+      http://blog.csdn.net/qzidane/article/details/51988838
+http://www.jikexueyuan.com/course/cordova/
+                        
