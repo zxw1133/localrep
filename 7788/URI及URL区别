@@ -1,0 +1,11 @@
+URIs, URLs, and URNs
+
+首先，URI，是uniform resource identifier，统一资源标识符，用来唯一的标识一个资源。而URL是uniform resource locator，统一资源定位器，它是一种具体的URI，即URL可以用来标识一个资源，而且还指明了如何locate这个资源。而URN，uniform resource name，统一资源命名，是通过名字来标识资源，比如mailto:java-net@java.sun.com。也就是说，URI是以一种抽象的，高层次概念定义统一资源标识，而URL和URN则是具体的资源标识的方式。URL和URN都是一种URI。
+
+在Java的URI中，一个URI实例可以代表绝对的，也可以是相对的，只要它符合URI的语法规则。而URL类则不仅符合语义，还包含了定位该资源的信息，因此它不能是相对的，schema必须被指定。
+
+ok，现在回答文章开头提出的问题，到底是imgUrl好呢，还是imgUri好？显然，如果说imgUri是肯定没问题的，因为即使它实际上是url，那它也是uri的一种。那么用imgUrl有没有问题呢？此时则要看它的可能取值，如果是绝对路径，能够定位的，那么用imgUrl是没问题的，而如果是相对路径，那还是不要用ImgUrl的好。总之，用imgUri是肯定没问题的，而用imgUrl则要视实际情况而定。
+
+第二个，从HttpServletRequest的javadoc中可以看出，getRequestURI返回一个String，“the part of this request’s URL from the protocol name up to the query string in the first line of the HTTP request”，比如“POST /some/path.html?a=b HTTP/1.1”，则返回的值为”/some/path.html”。现在可以明白为什么是getRequestURI而不是getRequestURL了，因为此处返回的是相对的路径。而getRequestURL返回一个StringBuffer，“The returned URL contains a protocol, server name, port number, and server path, but it does not include query string parameters.”，完整的请求资源路径，不包括querystring。
+
+总结一下：URL是一种具体的URI，它不仅唯一标识资源，而且还提供了定位该资源的信息。URI是一种语义上的抽象概念，可以是绝对的，也可以是相对的，而URL则必须提供足够的信息来定位，所以，是绝对的，而通常说的relative URL，则是针对另一个absolute URL，本质上还是绝对的。
