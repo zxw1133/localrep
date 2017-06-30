@@ -1,0 +1,180 @@
+server:
+package w.x.z.interestaidl;
+
+import android.app.Service;
+import android.content.Intent;
+import android.os.Binder;
+import android.os.IBinder;
+import android.os.RemoteCallbackList;
+import android.os.RemoteException;
+import android.support.annotation.Nullable;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by 123456 on 2017/6/29.
+ */
+public class BookService extends Service {
+    private ArrayList<Book> list=new ArrayList<>();
+    private RemoteCallbackList<NewbookListener> list1=new RemoteCallbackList<>();
+    private boolean flag=false;
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        flag=true;
+        list.add(new Book(0,"android"));
+        list.add(new Book(1,"ios"));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(flag) {
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    int bookid = list.size() + 1;
+                    Book newbook = new Book(bookid, "newbook" + bookid);
+                    newbookarrive(newbook);
+                }
+            }
+
+        }).start();
+    }
+    private void newbookarrive(Book b){
+        int i1 = list1.beginBroadcast();
+        for(int i=0;i<i1;i++){
+//            NewbookListener listener = list1.get(i);
+            NewbookListener broadcastItem = list1.getBroadcastItem(i);
+            try {
+                broadcastItem.newbookarrive(b);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        list1.finishBroadcast();
+    }
+
+    private Binder binder=new bookmanager.Stub(){
+
+        @Override
+        public List<Book> getbooklist() throws RemoteException {
+            return list;
+        }
+
+        @Override
+        public void addbook(Book book) throws RemoteException {
+            list.add(book);
+        }
+
+        @Override
+        public void registerListener(NewbookListener listener) throws RemoteException {
+//            if(!list1.contains(listener)){
+//                list1.add(listener);
+//            }else{}
+            list1.register(listener);
+            Log.e("book","register");
+        }
+
+        @Override
+        public void unregisterListener(NewbookListener listener) throws RemoteException {
+//            if(list1.contains(listener)){
+//                list1.remove(listener);
+//            }else{}
+            list1.unregister(listener);
+            Log.e("book","unregister");
+        }
+    };
+
+    @Override
+    public void onDestroy() {
+        flag=false;
+        super.onDestroy();
+    }
+}
+---------------------------------------------------------------------------------------------------
+client
+package w.x.z.myaidl;
+
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.os.RemoteException;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+
+import java.util.List;
+
+import w.x.z.interestaidl.Book;
+import w.x.z.interestaidl.NewbookListener;
+import w.x.z.interestaidl.bookmanager;
+
+
+public class MainActivity extends AppCompatActivity{
+
+    private NewbookListener listener=new NewbookListener.Stub(){
+        @Override
+        public void newbookarrive(Book newbook) throws RemoteException {
+            Log.e("book",newbook.toString());
+        }
+
+    };
+    private ServiceConnection connection=new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            bookmanager = w.x.z.interestaidl.bookmanager.Stub.asInterface(service);
+            try {
+                List<Book> list = bookmanager.getbooklist();
+                for (Book b:list) {
+                    Log.e("book",b.toString());
+                }
+                bookmanager.registerListener(listener);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+    private w.x.z.interestaidl.bookmanager bookmanager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Intent i=new Intent();
+        i.setAction("w.x.z.interestaidl.BookService");
+        i.setPackage("w.x.z.interestaidl");
+        bindService(i,connection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onDestroy() {
+       if(bookmanager!=null && bookmanager.asBinder().isBinderAlive()){
+           try {
+               bookmanager.unregisterListener(listener);
+           } catch (RemoteException e) {
+               e.printStackTrace();
+           }
+       }
+
+        unbindService(connection);
+
+        super.onDestroy();
+
+    }
+}
