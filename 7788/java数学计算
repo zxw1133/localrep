@@ -1,0 +1,17 @@
+    public static void main(String[]args){
+        System.out.print("0.05+0.01 = "+(0.05+0.01));
+        System.out.println();
+        System.out.print("1080*100/65 = "+1080*100/65);
+        System.out.println();
+        System.out.print("1080*100/65 = (double)"+(double)100/65);
+        System.out.println();
+        BigDecimal aa = new BigDecimal("100");
+        BigDecimal bb = new BigDecimal("65");
+        System.out.print("aa.(bb) = "+aa.divide(bb,5,BigDecimal.ROUND_HALF_UP));
+        /**
+         0.05+0.01 = 0.060000000000000005
+         1080*100/65 = 1661
+         1080*100/65 = (double)1.5384615384615385
+         aa.(bb) = 1.53846
+         * */
+    }
