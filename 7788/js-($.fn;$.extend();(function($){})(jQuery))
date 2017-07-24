@@ -1,0 +1,34 @@
+ <script>
+  var b={};
+  var q=function(){};
+  (function($){
+	$.fn.cc=function(){
+		alert("cc");
+	}
+  })(jQuery);
+  (function(a){
+	
+	function aa(){
+		alert("aa");
+	}
+	$.extend(a,{
+		bb:function (){
+			alert("bb");
+		},
+		dd:aa,
+	});
+  })(b);
+  (function(zz){
+	function ee(){
+		alert("ee");
+	}
+	q=ee;
+  })(q);
+
+	$(document).ready(function(){
+		b.bb();
+		b.dd();
+		$("#qiao").cc();
+		q();
+	});
+  </script>
