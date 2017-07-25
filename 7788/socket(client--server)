@@ -1,0 +1,251 @@
+1)server
+package w.x.z.mysocket;
+
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
+import android.util.Log;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+/**
+ * Created by 123456 on 2017/7/25.
+ */
+public class SocketService extends Service {
+    private boolean isservicedestory=false;
+    private String[] server_message={"aaaa","bbb","ccc"};
+    private ServerSocket serverSocket;
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.e("miss","create");
+        new Thread(new mythread()).start();
+    }
+
+    @Override
+    public void onDestroy() {
+        if(serverSocket!=null){
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return super.onStartCommand(intent, flags, startId);
+    }
+    class mythread implements Runnable{
+
+        @Override
+        public void run() {
+            serverSocket = null;
+                try {
+                    serverSocket =new ServerSocket(1133);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            while (!isservicedestory){
+                try {
+                    final Socket accept = serverSocket.accept();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            response_mes(accept);
+                        }
+                    }).start();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void response_mes(Socket accept) {
+        try {
+            BufferedReader br=new BufferedReader(new InputStreamReader(accept.getInputStream()));
+            PrintWriter pw=new PrintWriter(new BufferedWriter(new OutputStreamWriter(accept.getOutputStream())),true);
+            pw.println("welcome to here");
+            while(!isservicedestory){
+                String s = br.readLine();
+                if(s==null){
+                    break;
+                }
+                int i=s.length();
+                pw.println(server_message[i]);
+
+
+
+            }
+            br.close();
+            pw.close();
+            accept.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+
+
+        }
+
+    }
+
+}
+===================================
+2)client
+package w.x.z.mysocket;
+
+import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
+import android.os.SystemClock;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.text.Editable;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.Socket;
+
+public class SocketClientActivity extends AppCompatActivity {
+
+//    Handler handler=new Handler(new Handler.Callback() {
+//        @Override
+//        public boolean handleMessage(Message msg) {
+//            switch (msg.what){
+//                case 1:
+//
+//                    break;
+//                case
+//            }
+//
+//            return false;
+//        }
+//    });
+    Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 1:
+                    Toast.makeText(SocketClientActivity.this,msg.obj.toString(),Toast.LENGTH_SHORT).show();
+                    break;
+                case 2:
+                    Toast.makeText(SocketClientActivity.this,msg.obj.toString(),Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
+    private Socket socket;
+    private PrintWriter pw;
+    private BufferedReader br;
+    private EditText et;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_socket_client);
+        et = (EditText) findViewById(R.id.et);
+        Button button = (Button) findViewById(R.id.btn);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String s = et.getText().toString();
+                if(pw!=null){
+                    Log.e("miss","pw!=null");
+                    pw.println(s);
+                }else{
+                    Log.e("miss","pw==null");
+                }
+            }
+        });
+        startService(new Intent(SocketClientActivity.this,SocketService.class));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.e("miss","thread");
+                socket = null;
+                while (socket == null) {
+//
+                    try {
+                        socket = new Socket("localhost", 1133);
+                        Log.e("miss","zou");
+                        pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+                        br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        handler.obtainMessage(1,"connecting").sendToTarget();
+                        while(!SocketClientActivity.this.isFinishing()){
+                            String s = br.readLine();
+                            Log.e("miss",s+"read");
+                            if(s!=null){
+//                                pw.println(s);
+                                handler.obtainMessage(2,s).sendToTarget();
+                            }
+                        }
+
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        SystemClock.sleep(1000);
+                    }
+                }
+
+                try {
+                    pw.close();
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        try {
+            if(socket!=null){
+                socket.shutdownInput();
+                socket.shutdownOutput();
+                socket.close();
+            }
+
+//            br.close();
+//            pw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        super.onDestroy();
+
+    }
+}
+============
+3)权限
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
