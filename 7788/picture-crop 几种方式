@@ -1,3 +1,29 @@
+系统:
+拍照和裁剪
+  if(mywidth>0&&myheight>0){
+                        Intent myintent = new Intent("com.android.camera.action.CROP");
+                        myintent.setDataAndType(intent.getData(), "image/*");
+                        myintent.putExtra("crop", "true");
+                        myintent.putExtra("aspectX",mywidth);
+                        myintent.putExtra("aspectY", myheight);
+                        myheight=0;
+                        mywidth=0;
+                    Log.e("crop",mywidth+";"+myheight);
+                        myintent.putExtra("scale", true);
+                        //        intent.putExtra("return-data", false);
+                        myintent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(getTempDirectoryPath() + "/2.jpg")));
+                        myintent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+                        myintent.putExtra("noFaceDetection", true); // no face detection
+//                    startActivityForResult(intent, 2);
+                        this.cordova.startActivityForResult((CordovaPlugin) this, myintent, 1001);
+                        
+  intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                 this.cordova.startActivityForResult((CordovaPlugin) this, Intent.createChooser(intent,
+                    new String(title)), (srcType + 1) * 16 + returnType + 1);
+
+=====================================
 1)浮动层:
 package w.x.z.crop;
 
