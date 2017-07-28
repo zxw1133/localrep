@@ -1,0 +1,12 @@
+  NotificationCompat.Builder bu = new NotificationCompat.Builder(this)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.icon))
+                .setSmallIcon(R.drawable.icon)
+                .setContentText("正在使用中...")
+                .setContentTitle("手机谷瀑");
+//                .setWhen(System.currentTimeMillis());
+//                .setContentIntent(pendingIntent);
+        build = bu.build();
+//        manager.notify(0,build);
+        build.flags= Notification.FLAG_FOREGROUND_SERVICE;
+        build.defaults=Notification.DEFAULT_SOUND;
+        startForeground(1, build);
