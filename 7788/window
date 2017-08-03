@@ -1,0 +1,31 @@
+ WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        Button button = new Button(this);
+        button.setText("window");
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this,"click",Toast.LENGTH_SHORT).show();
+            }
+        });
+//        button.setBackgroundColor(Color.BLACK);
+        LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        button.setLayoutParams(layoutParams1);
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT
+                , 0, 0, PixelFormat.TRANSPARENT);
+        layoutParams.flags= //WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+           //     | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
+        layoutParams.gravity= Gravity.LEFT|Gravity.TOP;
+        layoutParams.x=100;
+        layoutParams.y=300;
+        layoutParams.type= WindowManager.LayoutParams.TYPE_PHONE;
+        windowManager.addView(button,layoutParams);
+        =====================================================
+     权限: if(Build.VERSION.SDK_INT>=23){
+            if(!Settings.canDrawOverlays(this)){
+                startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION));
+                get_a_window();
+            }else{
+                get_a_window();
+            }
