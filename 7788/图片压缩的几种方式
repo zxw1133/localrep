@@ -25,3 +25,26 @@
     //重新读入图片，注意此时已经把options.inJustDecodeBounds 设回false了
     isBm = new ByteArrayInputStream(baos.toByteArray());
     bitmap = BitmapFactory.decodeStream(isBm, null, newOpts);
+====================================================
+ public void decodeSampleBitmapfromResource(Resources res, int resid,int requestw,int requesth){
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds=true;
+        BitmapFactory.decodeResource(res,resid,options);
+        options.inSampleSize=calculateSampleSize(options,requestw,requesth);
+        options.inJustDecodeBounds=false;
+        BitmapFactory.decodeResource(res,resid,options);
+    }
+
+    private int calculateSampleSize(BitmapFactory.Options options, int requestw, int requesth) {
+        int outWidth = options.outWidth;
+        int outHeight = options.outHeight;
+        int sampleSize=1;
+        if(outWidth>requestw || outHeight>requesth){
+            int halfw=outWidth/2;
+            int halfh=outHeight/2;
+            while((halfw/sampleSize)>requestw && halfh/sampleSize>requesth){
+                sampleSize*=2;
+            }
+        }
+        return sampleSize;
+    }
