@@ -1,0 +1,282 @@
+//
+//  SocialMessage.java
+//  Copyright (c) 2013 Lee Crossley - http://ilee.co.uk
+//
+
+package uk.co.ilee.socialmessage;
+
+import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.os.Parcelable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import android.widget.Toast;
+
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaPlugin;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+@SuppressLint("DefaultLocale")
+public class SocialMessage extends CordovaPlugin {
+
+	private Intent targeted;
+	private String text;
+	private String subject;
+	private String url;
+	private String image;
+	private String platform;
+    private CallbackContext callback;
+
+	@Override
+	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+		JSONObject json = args.getJSONObject(0);
+        callback=callbackContext;
+		text = getJSONProperty(json, "text");
+		subject = getJSONProperty(json, "subject");
+		url = getJSONProperty(json, "url");
+		image = getJSONProperty(json, "image");
+		platform=getJSONProperty(json,"platform");
+		if (url != null && url.length() > 0) {
+			if (text == null) {
+				text = url;
+			} else {
+				text = text + " " + url;
+			}
+		}
+		try {
+            if(Build.VERSION.SDK_INT>=23){
+                if(ContextCompat.checkSelfPermission(cordova.getActivity(), android.Manifest.permission.READ_EXTERNAL_STORAGE)!=PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(cordova.getActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE)!=PackageManager.PERMISSION_GRANTED ){
+                    ActivityCompat.requestPermissions(cordova.getActivity(),new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
+
+                }else {
+                    doSendIntent(text, subject, image);
+                }
+            }else {
+                doSendIntent(text, subject, image);
+            }
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return true;
+	}
+	
+	private String getJSONProperty(JSONObject json, String property) throws JSONException {
+		if (json.has(property)) {
+			return json.getString(property);
+		}
+		return null;
+	}
+
+	private void doSendIntent(final String text, final String subject, final String image) throws IOException {
+		final Intent sendIntent = new Intent(Intent.ACTION_SEND);
+		if (image != null && image.length() > 0) {
+			sendIntent.setType("image/*");
+			final List<ResolveInfo> resInfo = cordova.getActivity().getPackageManager().queryIntentActivities(sendIntent,
+					PackageManager.MATCH_DEFAULT_ONLY);
+			if (!resInfo.isEmpty()) {
+				cordova.getThreadPool().execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							List<Intent> targetedShareIntents = new ArrayList<Intent>();
+							URL url = new URL(image);
+//							String storageDir =cordova.getActivity().getCacheDir().getAbsolutePath();
+							String storageDir =Environment.getExternalStorageDirectory().getPath();
+							String path = storageDir + "/" + image.substring(image.lastIndexOf("/") + 1, image.length());
+							Log.e("log",url+","+path);
+
+							saveImage(url, path);
+							for (ResolveInfo info : resInfo) {
+								targeted = new Intent(Intent.ACTION_SEND);
+								targeted.setType("image/*");
+								ActivityInfo activityInfo = info.activityInfo;
+								if (text != null && text.length() > 0) {
+									targeted.putExtra(Intent.EXTRA_TEXT, text);
+								}
+								if (subject != null && subject.length() > 0) {
+									targeted.putExtra(Intent.EXTRA_SUBJECT, subject);
+								}
+								targeted.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(path)));
+								targeted.putExtra ( "Kdescription" ,text) ;
+								targeted.setPackage(activityInfo.packageName);
+								targeted.setClassName(activityInfo.packageName, info.activityInfo.name);
+								PackageManager pm = cordova.getActivity().getPackageManager();
+								if(platform.contains("QQ")){
+									if (info.activityInfo.applicationInfo.loadLabel(pm).toString().equals("QQ")) {// && !(info.loadLabel(pm).toString().contains("微信收藏"))
+										if(targetedShareIntents.size()==0){
+											targetedShareIntents.add(targeted);
+										}
+									}
+								}
+								if(platform.contains("WEIXIN")){
+									if (info.activityInfo.applicationInfo.loadLabel(pm).toString().equals("微信")&& (info.loadLabel(pm).toString().contains("朋友圈"))&& !(info.loadLabel(pm).toString().contains("微信收藏"))) {// && !(info.loadLabel(pm).toString().contains("微信收藏"))
+										if(targetedShareIntents.size()==0){
+											targetedShareIntents.add(targeted);
+//                                            System.out.print(info.activityInfo.packageName+"packagename");
+										}
+									}
+								}
+								if(platform.contains("WEIBO")){
+									if (info.activityInfo.applicationInfo.loadLabel(pm).toString().equals("微博")) {// && !(info.loadLabel(pm).toString().contains("微信收藏"))
+										if(targetedShareIntents.size()==0){
+											targetedShareIntents.add(targeted);
+										}
+									}
+								}
+							}
+//							sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(path)));
+//							cordova.getActivity().startActivityForResult(sendIntent, 0);
+							Intent chooserIntent = Intent.createChooser(targetedShareIntents.remove(0), "选择分享");
+							if (chooserIntent == null) {
+								Toast.makeText(cordova.getActivity(),"没有可以分享的程序",Toast.LENGTH_SHORT).show();
+							}
+							chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetedShareIntents.toArray(new Parcelable[] {}));
+							try {
+								cordova.getActivity().startActivity(chooserIntent);
+							} catch (android.content.ActivityNotFoundException ex) {
+								Toast.makeText(cordova.getActivity(), "找不到该分享应用组件", Toast.LENGTH_SHORT).show();
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				});
+
+			}
+
+		} else {
+                sendIntent.setType("text/plain");
+//			cordova.startActivityForResult(this, sendIntent, 0);
+                List<ResolveInfo> resInfo = cordova.getActivity().getPackageManager().queryIntentActivities(sendIntent,
+                        PackageManager.MATCH_DEFAULT_ONLY);
+                if (!resInfo.isEmpty()) {
+                    List<Intent> targetedShareIntents = new ArrayList<Intent>();
+                    for (ResolveInfo info : resInfo) {
+                        Intent targeted = new Intent(Intent.ACTION_SEND);
+                        targeted.setType("text/plain");
+                        ActivityInfo activityInfo = info.activityInfo;
+                        if (text != null && text.length() > 0) {
+                            targeted.putExtra(Intent.EXTRA_TEXT, text);
+                        }
+                        if (subject != null && subject.length() > 0) {
+                            targeted.putExtra(Intent.EXTRA_SUBJECT, subject);
+                        }
+                        targeted.setPackage(activityInfo.packageName);
+                        targeted.setClassName(activityInfo.packageName, info.activityInfo.name);
+                        PackageManager pm = cordova.getActivity().getPackageManager();
+                        if (platform.contains("QQ")) {
+                            if (info.activityInfo.applicationInfo.loadLabel(pm).toString().equals("QQ")) {// && !(info.loadLabel(pm).toString().contains("微信收藏"))
+                                if (targetedShareIntents.size() == 0) {
+                                    targetedShareIntents.add(targeted);
+                                }
+                            }
+                        }
+                        if (platform.contains("WEIXIN")) {
+                            if (info.activityInfo.applicationInfo.loadLabel(pm).toString().equals("微信") && !(info.loadLabel(pm).toString().contains("朋友圈")) && !(info.loadLabel(pm).toString().contains("微信收藏"))) {// && !(info.loadLabel(pm).toString().contains("微信收藏"))
+                                if (targetedShareIntents.size() == 0) {
+                                    targetedShareIntents.add(targeted);
+                                }
+                            }
+                        }
+                        if (platform.contains("WEIBO")) {
+                            if (info.activityInfo.applicationInfo.loadLabel(pm).toString().equals("微博")) {// && !(info.loadLabel(pm).toString().contains("微信收藏"))
+                                if (targetedShareIntents.size() == 0) {
+                                    targetedShareIntents.add(targeted);
+                                }
+                            }
+                        }
+                    if(platform.contains("DUANXIN")){
+						if(Build.MANUFACTURER.contains("Xiaomi")){
+							if (info.activityInfo.applicationInfo.loadLabel(pm).toString().equals("短信")) {// && !(info.loadLabel(pm).toString().contains("微信收藏"))
+								if(targetedShareIntents.size()==0){
+									targetedShareIntents.add(targeted);
+								}
+							}
+						}else {
+							if (info.activityInfo.applicationInfo.loadLabel(pm).toString().equals("信息")) {// && !(info.loadLabel(pm).toString().contains("微信收藏"))
+								if (targetedShareIntents.size() == 0) {
+									targetedShareIntents.add(targeted);
+								}
+							}
+						}
+                    }
+                    if(platform.contains("FUZHI")){
+                        ClipboardManager cm= (ClipboardManager) cordova.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                        cm.setPrimaryClip(ClipData.newPlainText(null, text));
+                        Toast.makeText(cordova.getActivity(), "复制成功", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    }
+                    Log.e("log", targetedShareIntents.size() + "");
+
+                    if (targetedShareIntents.size()==0) {
+                        Toast.makeText(cordova.getActivity(), "未找到应用,请先下载应用", Toast.LENGTH_SHORT).show();
+                        callback.success("error");
+                    }else{
+                        callback.success("success");
+						Intent chooserIntent = Intent.createChooser(targetedShareIntents.remove(0), "选择分享");
+						chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetedShareIntents.toArray(new Parcelable[]{}));
+						try {
+							cordova.getActivity().startActivity(chooserIntent);
+						} catch (android.content.ActivityNotFoundException ex) {
+							Toast.makeText(cordova.getActivity(), "找不到该分享应用组件", Toast.LENGTH_SHORT).show();
+						}
+					}
+
+                }
+        }
+	}
+
+
+
+    @Override
+	public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
+		super.onRequestPermissionResult(requestCode, permissions, grantResults);
+		if(requestCode==1){
+			int grantResult = grantResults[0];
+			boolean b = grantResult == PackageManager.PERMISSION_GRANTED;
+			if(b){
+				try {
+					doSendIntent(text, subject, image);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public static void saveImage(URL url, String outputPath) throws IOException {
+		InputStream is = url.openStream();
+		OutputStream os = new FileOutputStream(outputPath);
+		byte[] b = new byte[2048];
+		int length;
+		while ((length = is.read(b)) != -1) {
+			os.write(b, 0, length);
+		}
+		is.close();
+		os.close();
+	}
+}
